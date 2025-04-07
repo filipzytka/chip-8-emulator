@@ -1,19 +1,12 @@
-public delegate void InstructionToExecute();
-
 public class CPU 
 {
-    public byte[] Memory { get; }
-    public byte[] VRegisters { get; set; }
-
-    public ushort ProgramCounter = _programStart;
-    public ushort IndexRegister = 0;
-
     public CPU()
     {
-        VRegisters = new byte[_vSize];
-        Memory = new byte[_memSize];
-        LoadFont();
+        _bitExtractor = new BitExtractor();
+        _registers = new Registers(_programStart, _memSize);
         _display = new Display();
+        _opcodeExecuter = new OpcodeExecuter();
+        LoadFont();
     }
 
     public void ProcessInstruction() 
@@ -49,7 +42,7 @@ public class CPU
                 throw new OutOfMemoryException();
             }
 
-            Memory[memIndex] = program[programIndex];
+            _registers.Memory[memIndex] = program[programIndex];
             programIndex += 1;
 
             memIndex += 1;
@@ -58,129 +51,88 @@ public class CPU
 
     private void Fetch()
     {
-        if (ProgramCounter > _memSize - 1)
+        if (_registers.ProgramCounter > _memSize - 1)
         {
             throw new OutOfMemoryException();
         }
 
-        _co = (ushort)((Memory[ProgramCounter] << 8) | Memory[ProgramCounter + 1]);
+        _latestOpcode = (ushort)((_registers.Memory[_registers.ProgramCounter] << 8) | _registers.Memory[_registers.ProgramCounter + 1]);
 
-        ProgramCounter += 2;
+        _registers.ProgramCounter += 2;
     }
 
     private void Decode() 
     {
-        var msbNibble = GetNibble(_co, 0);
+        var msbNibble = _bitExtractor.GetNibble(_latestOpcode, 0);
 
         switch (msbNibble)
         {
             case 0x00: 
-                if (_co == 0x00E0) 
+                if (_latestOpcode == 0x00E0) 
                 {
-                    _currentExecute = () => {
-                        _display.Clear();
-                    };
+                    _currentExecute = _opcodeExecuter.Execute(new _00E0(_display));
                 }
-                else if (_co == 0x00EE)
+                else if (_latestOpcode == 0x00EE)
                 {
-                    _currentExecute = () => {
-                    };
+                    _currentExecute = _opcodeExecuter.Execute(new _00EE());
                 }
                 break;
             case 0x1: 
-                _currentExecute = () => {
-                    ProgramCounter = (ushort)(
-                            (GetNibble(_co, 1) << 8) |
-                            (GetNibble(_co, 2) << 4) |
-                            GetNibble(_co, 3)
-                    );
-                };
+                _context = new(_bitExtractor, _registers, _latestOpcode);
+                _currentExecute = _opcodeExecuter.Execute(new _1NNN(_context));
                 break;
             case 0x3:
-                _currentExecute = () => {
-                    if (VRegisters[GetNibble(_co, 1)] == ((GetNibble(_co, 2) << 4) | GetNibble(_co, 3)))
-                    {
-                        ProgramCounter += 2;
-                    }
-                };
+                _context = new(_bitExtractor, _registers, _latestOpcode);
+                _currentExecute = _opcodeExecuter.Execute(new _3XNN(_context));
                 break;
             case 0x4:
-                _currentExecute = () => { 
-                    if (VRegisters[GetNibble(_co, 1)] != ((GetNibble(_co, 2) << 4) | GetNibble(_co, 3)))
-                        {
-                            ProgramCounter += 2;
-                        }
-                    };
+                _context = new(_bitExtractor, _registers, _latestOpcode);
+                _currentExecute = _opcodeExecuter.Execute(new _4XNN(_context));
                 break;
             case 0x5:
-                _currentExecute = () => { 
-                    if (VRegisters[GetNibble(_co, 1)] == VRegisters[GetNibble(_co, 2)])
-                        {
-                            ProgramCounter += 2;
-                        }
-                    };
+                _context = new(_bitExtractor, _registers, _latestOpcode);
+                _currentExecute = _opcodeExecuter.Execute(new _5XY0(_context));
                 break;
             case 0x6:
-                _currentExecute = () => {
-                    VRegisters[GetNibble(_co, 1)] = (byte)((GetNibble(_co, 2) << 4) | GetNibble(_co, 3));
-                };
+                _context = new(_bitExtractor, _registers, _latestOpcode);
+                _currentExecute = _opcodeExecuter.Execute(new _6XNN(_context));
                 break;
             case 0x7:
-                _currentExecute = () => {
-                    VRegisters[GetNibble(_co, 1)] += (byte)((GetNibble(_co, 2) << 4) | GetNibble(_co, 3));
-                };
+                _context = new(_bitExtractor, _registers, _latestOpcode);
+                _currentExecute = _opcodeExecuter.Execute(new _7XNN(_context));
                 break;
              case 0x8:
-                _currentExecute = () => {
-                    if (GetNibble(_co, 3) == 0)
+                    if (_bitExtractor.GetNibble(_latestOpcode, 3) == 0)
                     {
-                        VRegisters[GetNibble(_co, 1)] = VRegisters[GetNibble(_co, 2)];
+                        _context = new(_bitExtractor, _registers, _latestOpcode);
+                        _currentExecute = _opcodeExecuter.Execute(new _8XY0(_context));
                     }
-                    else if (GetNibble(_co, 3) == 1)
+                    else if (_bitExtractor.GetNibble(_latestOpcode, 3) == 1)
                     {
-                        VRegisters[GetNibble(_co, 1)] |= VRegisters[GetNibble(_co, 2)];
+                        _context = new(_bitExtractor, _registers, _latestOpcode);
+                        _currentExecute = _opcodeExecuter.Execute(new _8XY1(_context));
                     }
-                    else if (GetNibble(_co, 3) == 2)
+                    else if (_bitExtractor.GetNibble(_latestOpcode, 3) == 2)
                     {
-                        VRegisters[GetNibble(_co, 1)] &= VRegisters[GetNibble(_co, 2)];
+                        _context = new(_bitExtractor, _registers, _latestOpcode);
+                        _currentExecute = _opcodeExecuter.Execute(new _8XY2(_context));
                     }
-                };
                 break;       
             case 0xA:
-                _currentExecute = () => {
-                    IndexRegister = (ushort)((GetNibble(_co, 1) << 8) | (GetNibble(_co, 2) << 4) | GetNibble(_co, 3));
-                };
+                _context = new(_bitExtractor, _registers, _latestOpcode);
+                _currentExecute = _opcodeExecuter.Execute(new _ANNN(_context));
                 break;
             case 0xB:
-                _currentExecute = () => {
-                    ProgramCounter = (ushort)((GetNibble(_co, 1) << 8) | (GetNibble(_co, 2) << 4) | GetNibble(_co, 3) + VRegisters[0]);
-                };
+                _context = new(_bitExtractor, _registers, _latestOpcode);
+                _currentExecute = _opcodeExecuter.Execute(new _BNNN(_context));
                 break;
             case 0xC:
-                _currentExecute = () => {
-                    Random r = new Random();
-                    byte b = (byte)r.Next(0, 256); 
-                    ushort NN = (byte)(GetNibble(_co, 2) << 4 | GetNibble(_co, 3));
-                    VRegisters[GetNibble(_co, 1)] = (byte)(b & NN);
-                };
+                _context = new(_bitExtractor, _registers, _latestOpcode);
+                _currentExecute = _opcodeExecuter.Execute(new _CXNN(_context));
                 break;
             case 0xD:
-                _currentExecute = () => {
-                    VRegisters[0xF] = 0;
-
-                    byte n = GetNibble(_co, 3);
-                    byte[] sprite = new byte[n];
-
-                    for (byte i = 0; i < n; i++)
-                    {
-                        sprite[i] = Memory[IndexRegister + i];
-                    }
-
-                    bool isCollision = _display.DrawSprite(sprite, VRegisters[(GetNibble(_co, 1))], VRegisters[(GetNibble(_co, 2))]);
-                    if (isCollision) VRegisters[0xD] = 1;
-                    Console.Clear();
-                    _display.Show();
-                };
+                _context = new(_bitExtractor, _registers, _latestOpcode);
+                _currentExecute = _opcodeExecuter.Execute(new _DXYN(_context, _display));
                 break;
         }
     }
@@ -195,30 +147,16 @@ public class CPU
         _currentExecute();
     }
 
-    private byte GetNibble(ushort opcode, byte index)
-    {
-        switch (index)
-        {
-            case 0: 
-                return (byte)((opcode >> 12));
-            case 1:
-                return (byte)((opcode & 0xF00) >> 8);
-            case 2:
-                return (byte)((opcode & 0xF0) >> 4);
-            case 3:
-                return (byte)((opcode & 0xF));
-            default:
-                throw new IndexOutOfRangeException();
-        }
-    }
-
-    private InstructionToExecute? _currentExecute;
+    private Action? _currentExecute;
 
     private const byte _fontStart = 0x50;
-    private const byte _vSize = 16;
-    private ushort _co = 0;
+    private ushort _latestOpcode = 0;
 
+    private BitExtractor _bitExtractor;
     private Display _display;
+    private Registers _registers;
+    private OpcodeExecuter _opcodeExecuter;
+    private OpcodeContext? _context;
 
     private const ushort _memSize = 4096;
     private const ushort _programStart = 0x200;
@@ -242,7 +180,7 @@ public class CPU
         
         while (fontIndex < Font.Sprites.Length)
         {
-            Memory[memIndex] = Font.Sprites[fontIndex];
+            _registers.Memory[memIndex] = Font.Sprites[fontIndex];
 
             fontIndex += 1;
             memIndex += 1;

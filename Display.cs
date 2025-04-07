@@ -1,7 +1,7 @@
 public class Display 
 {
-    private const int _width = 64;
-    private const int _height = 32;
+    private const ushort _width = 64;
+    private const ushort _height = 32;
     public const char ON = '█', OFF = ' '; 
  
     public ushort[,] Screen; 
