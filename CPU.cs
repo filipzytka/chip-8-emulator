@@ -74,7 +74,10 @@ public class CPU
             throw new OutOfMemoryException();
         }
 
-        _latestOpcode = (ushort)((_registers.Memory[_registers.ProgramCounter] << 8) | _registers.Memory[_registers.ProgramCounter + 1]);
+        byte msByte = (_registers.Memory[_registers.ProgramCounter]);
+        byte lsByte = (_registers.Memory[_registers.ProgramCounter + 1]);
+
+        _latestOpcode = _bitManipulator.ToUShort(msByte, lsByte);
 
         _registers.ProgramCounter += 2;
     }
@@ -84,7 +87,8 @@ public class CPU
         var currentOpcodeInstance = _opcodeProvider.GetOpcodeInstance(_latestOpcode);
         if (currentOpcodeInstance is null) return;
 
-        _opcodeProvider.SetupOpcode(currentOpcodeInstance, new OpcodeContext(_bitManipulator, _registers, _latestOpcode));
+        _opcodeProvider.SetupOpcode(currentOpcodeInstance,
+                new OpcodeContext(_bitManipulator, _registers, _latestOpcode));
         _currentExecute = _opcodeHandler.Handle(currentOpcodeInstance);
     }
 

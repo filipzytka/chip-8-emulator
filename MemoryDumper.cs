@@ -33,10 +33,5 @@ public class MemoryDumper
         }
     }
 
-    public void SetRowSize(ushort size)
-    {
-        _rowSize = size;
-    }
-
     private ushort _rowSize = 16;
 }

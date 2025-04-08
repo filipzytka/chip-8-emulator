@@ -16,5 +16,10 @@ public class BitManipulator
                 throw new IndexOutOfRangeException();
         }
     }
+
+    public ushort ToUShort(byte msByte, byte lsByte)
+    {
+        return (ushort)((msByte << 8) | lsByte);
+    }
 }
 
