@@ -1,8 +1,8 @@
-public class _00E0 : IOpcode
+public class _00E0 : IDisplayableOpcode
 {
-    private readonly Display _display;
+    private Display _display;
 
-    public _00E0(Display display)
+    public void LoadDisplay(Display display)
     {
         _display = display;
     }

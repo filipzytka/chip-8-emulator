@@ -1,8 +1,8 @@
-public class _3XNN : IOpcode
+public class _3XNN : IContextualOpcode
 {
-    private readonly OpcodeContext _context;
+    private OpcodeContext _context;
 
-    public _3XNN(OpcodeContext context)
+    public void LoadContext(OpcodeContext context)
     {
         _context = context;
     }

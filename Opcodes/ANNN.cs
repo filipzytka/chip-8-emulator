@@ -1,8 +1,8 @@
-public class _ANNN : IOpcode
+public class _ANNN : IContextualOpcode
 {
-    private readonly OpcodeContext _context;
+    private OpcodeContext _context;
 
-    public _ANNN(OpcodeContext context)
+    public void LoadContext(OpcodeContext context)
     {
         _context = context;
     }

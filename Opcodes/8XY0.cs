@@ -1,8 +1,8 @@
-public class _8XY0 : IOpcode
+public class _8XY0 : IContextualOpcode
 {
-    private readonly OpcodeContext _context;
+    private OpcodeContext _context;
 
-    public _8XY0(OpcodeContext context)
+    public void LoadContext(OpcodeContext context)
     {
         _context = context;
     }

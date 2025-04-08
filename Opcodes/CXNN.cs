@@ -1,9 +1,9 @@
-public class _CXNN : IOpcode
+public class _CXNN : IContextualOpcode
 {
-    private readonly OpcodeContext _context;
+    private OpcodeContext _context;
     static Random r = new Random();
 
-    public _CXNN(OpcodeContext context)
+    public void LoadContext(OpcodeContext context)
     {
         _context = context;
     }

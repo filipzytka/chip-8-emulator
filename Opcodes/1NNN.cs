@@ -1,8 +1,8 @@
-public class _1NNN : IOpcode
+public class _1NNN : IContextualOpcode
 {
-    private readonly OpcodeContext _context;
+    private OpcodeContext _context;
 
-    public _1NNN(OpcodeContext context)
+    public void LoadContext(OpcodeContext context)
     {
         _context = context;
     }
@@ -19,6 +19,10 @@ public class _1NNN : IOpcode
     }
 }
 
+// Decode
+// dekoduje zfetchowana instrukcje (szuka w dictionary)
+// jesli znajdzie, to odpala dla tej instancji metode LoadContext
+// jak zaladuje kontekst, to opcode moze zostac invoke
 
 
 

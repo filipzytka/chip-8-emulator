@@ -1,12 +1,16 @@
 public class CPU 
 {
-    public CPU()
+    public CPU(byte[] program, Display display)
     {
+        _display = display;
+
         _bitExtractor = new BitExtractor();
-        _registers = new Registers(_programStart, _memSize);
-        _display = new Display();
-        _opcodeExecuter = new OpcodeExecuter();
-        LoadFont();
+        _registers = new Registers(_programStartAddress, _memorySize);
+        _opcodeHandler = new OpcodeHandler();
+        _opcodeContainer = new OpcodeContainer(_bitExtractor, _display);
+
+        LoadToMemory(Font.Sprites, _fontStart);
+        LoadToMemory(program);
     }
 
     public void ProcessInstruction() 
@@ -30,28 +34,42 @@ public class CPU
         }
     }
 
-    public void LoadProgram(byte[] program) 
+    private void LoadToMemory(byte[] programToLoad, ushort startAddress = _programStartAddress) 
     {
-        ushort memIndex = _programStart;
+        ushort memoryIndex = startAddress;
         ushort programIndex = 0;
-        
-        while (programIndex < program.Length)
+
+        while (programIndex < programToLoad.Length)
         {
-            if (memIndex > _memSize - 1)
+            if (memoryIndex > _memorySize - 1)
             {
                 throw new OutOfMemoryException();
             }
 
-            _registers.Memory[memIndex] = program[programIndex];
-            programIndex += 1;
+            _registers.Memory[memoryIndex] = programToLoad[programIndex];
 
-            memIndex += 1;
+            programIndex += 1;
+            memoryIndex += 1;
         }
     }
 
+    private Loop _instructionPhase = Loop.Fetch;
+    private Action? _currentExecute;
+    private ushort _latestOpcode = 0;
+
+    private BitExtractor _bitExtractor;
+    private Display _display;
+    private Registers _registers;
+    private OpcodeHandler _opcodeHandler;
+    private OpcodeContainer _opcodeContainer;
+
+    private const ushort _memorySize = 4096;
+    private const ushort _programStartAddress = 0x200;
+    private const byte _fontStart = 0x50;
+
     private void Fetch()
     {
-        if (_registers.ProgramCounter > _memSize - 1)
+        if (_registers.ProgramCounter > _memorySize - 1)
         {
             throw new OutOfMemoryException();
         }
@@ -63,78 +81,11 @@ public class CPU
 
     private void Decode() 
     {
-        var msbNibble = _bitExtractor.GetNibble(_latestOpcode, 0);
+        var currentOpcodeInstance = _opcodeContainer.GetOpcodeInstance(_latestOpcode);
+        if (currentOpcodeInstance is null) return;
 
-        switch (msbNibble)
-        {
-            case 0x00: 
-                if (_latestOpcode == 0x00E0) 
-                {
-                    _currentExecute = _opcodeExecuter.Execute(new _00E0(_display));
-                }
-                else if (_latestOpcode == 0x00EE)
-                {
-                    _currentExecute = _opcodeExecuter.Execute(new _00EE());
-                }
-                break;
-            case 0x1: 
-                _context = new(_bitExtractor, _registers, _latestOpcode);
-                _currentExecute = _opcodeExecuter.Execute(new _1NNN(_context));
-                break;
-            case 0x3:
-                _context = new(_bitExtractor, _registers, _latestOpcode);
-                _currentExecute = _opcodeExecuter.Execute(new _3XNN(_context));
-                break;
-            case 0x4:
-                _context = new(_bitExtractor, _registers, _latestOpcode);
-                _currentExecute = _opcodeExecuter.Execute(new _4XNN(_context));
-                break;
-            case 0x5:
-                _context = new(_bitExtractor, _registers, _latestOpcode);
-                _currentExecute = _opcodeExecuter.Execute(new _5XY0(_context));
-                break;
-            case 0x6:
-                _context = new(_bitExtractor, _registers, _latestOpcode);
-                _currentExecute = _opcodeExecuter.Execute(new _6XNN(_context));
-                break;
-            case 0x7:
-                _context = new(_bitExtractor, _registers, _latestOpcode);
-                _currentExecute = _opcodeExecuter.Execute(new _7XNN(_context));
-                break;
-             case 0x8:
-                    if (_bitExtractor.GetNibble(_latestOpcode, 3) == 0)
-                    {
-                        _context = new(_bitExtractor, _registers, _latestOpcode);
-                        _currentExecute = _opcodeExecuter.Execute(new _8XY0(_context));
-                    }
-                    else if (_bitExtractor.GetNibble(_latestOpcode, 3) == 1)
-                    {
-                        _context = new(_bitExtractor, _registers, _latestOpcode);
-                        _currentExecute = _opcodeExecuter.Execute(new _8XY1(_context));
-                    }
-                    else if (_bitExtractor.GetNibble(_latestOpcode, 3) == 2)
-                    {
-                        _context = new(_bitExtractor, _registers, _latestOpcode);
-                        _currentExecute = _opcodeExecuter.Execute(new _8XY2(_context));
-                    }
-                break;       
-            case 0xA:
-                _context = new(_bitExtractor, _registers, _latestOpcode);
-                _currentExecute = _opcodeExecuter.Execute(new _ANNN(_context));
-                break;
-            case 0xB:
-                _context = new(_bitExtractor, _registers, _latestOpcode);
-                _currentExecute = _opcodeExecuter.Execute(new _BNNN(_context));
-                break;
-            case 0xC:
-                _context = new(_bitExtractor, _registers, _latestOpcode);
-                _currentExecute = _opcodeExecuter.Execute(new _CXNN(_context));
-                break;
-            case 0xD:
-                _context = new(_bitExtractor, _registers, _latestOpcode);
-                _currentExecute = _opcodeExecuter.Execute(new _DXYN(_context, _display));
-                break;
-        }
+        _opcodeContainer.SetupOpcode(currentOpcodeInstance, new OpcodeContext(_bitExtractor, _registers, _latestOpcode));
+        _currentExecute = _opcodeHandler.Handle(currentOpcodeInstance);
     }
 
     private void Execute() 
@@ -147,22 +98,6 @@ public class CPU
         _currentExecute();
     }
 
-    private Action? _currentExecute;
-
-    private const byte _fontStart = 0x50;
-    private ushort _latestOpcode = 0;
-
-    private BitExtractor _bitExtractor;
-    private Display _display;
-    private Registers _registers;
-    private OpcodeExecuter _opcodeExecuter;
-    private OpcodeContext? _context;
-
-    private const ushort _memSize = 4096;
-    private const ushort _programStart = 0x200;
-    
-    private Loop _instructionPhase = Loop.Fetch;
-
     private void MoveNext()
     {
         if (_instructionPhase == Loop.Execute)
@@ -173,18 +108,4 @@ public class CPU
 
         _instructionPhase += 1;
     }
-
-    private void LoadFont() 
-    {
-        ushort memIndex = _fontStart, fontIndex = 0;
-        
-        while (fontIndex < Font.Sprites.Length)
-        {
-            _registers.Memory[memIndex] = Font.Sprites[fontIndex];
-
-            fontIndex += 1;
-            memIndex += 1;
-        }
-    }
 }
-

@@ -5,9 +5,9 @@ public class Registers
     public ushort IndexRegister { get; set; } = 0;
     public byte[] Memory { get; }
 
-    public Registers(ushort programStart, ushort memSize)
+    public Registers(ushort programStart, ushort memorySize)
     {
-        Memory = new byte[memSize];
+        Memory = new byte[memorySize];
         VRegisters = new byte[_vSize];
         ProgramCounter = programStart;
     }

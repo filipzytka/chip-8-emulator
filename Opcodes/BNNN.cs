@@ -1,8 +1,8 @@
-public class _BNNN : IOpcode
+public class _BNNN : IContextualOpcode
 {
-    private readonly OpcodeContext _context;
+    private OpcodeContext _context;
 
-    public _BNNN(OpcodeContext context)
+    public void LoadContext(OpcodeContext context)
     {
         _context = context;
     }

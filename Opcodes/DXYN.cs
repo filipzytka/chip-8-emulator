@@ -1,11 +1,15 @@
-public class _DXYN : IOpcode
+public class _DXYN : IContextualOpcode, IDisplayableOpcode
 {
-    private readonly OpcodeContext _context;
-    private readonly Display _display;
+    private OpcodeContext _context;
+    private Display _display;
 
-    public _DXYN(OpcodeContext context, Display display)
+    public void LoadContext(OpcodeContext context)
     {
         _context = context;
+    }
+
+    public void LoadDisplay(Display display)
+    {
         _display = display;
     }
 

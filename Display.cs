@@ -2,7 +2,7 @@ public class Display
 {
     private const ushort _width = 64;
     private const ushort _height = 32;
-    public const char ON = '█', OFF = ' '; 
+    private const char ON = '█', OFF = ' '; 
  
     public ushort[,] Screen; 
 
@@ -21,21 +21,21 @@ public class Display
         byte mask = 0x80;
         byte spriteWidth = 8;
 
-        for (byte i = 0; i < n; i++)
+        for (byte row = 0; row < n; row++)
         {
-            for (byte j = 0; j < spriteWidth; j++)
+            for (byte col = 0; col < spriteWidth; col++)
             {
-                if ((sprites[i] & (mask >> j)) == 0)
+                if ((sprites[row] & (mask >> col)) == 0)
                 {
                     continue;
                 }
 
-                if (Screen[y + i, x + j] == ON) 
+                if (Screen[y + row, x + col] == ON) 
                 {
                     isCollision = true;
                 }
 
-                Screen[y + i, x + j] ^= 1;
+                Screen[y + row, x + col] ^= 1;
             }
         }
 

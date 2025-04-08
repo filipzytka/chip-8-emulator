@@ -9,11 +9,10 @@ if (path is null)
 
 byte[] program = File.ReadAllBytes(path);
 
-CPU c = new();
+Display d = new();
+CPU c = new(program, d);
 
 MemoryDumper md = new();
-Display d = new();
-c.LoadProgram(program);
 
 while (true) 
 {
