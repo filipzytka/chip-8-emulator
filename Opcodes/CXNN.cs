@@ -12,11 +12,11 @@ public class _CXNN : IContextualOpcode
     {
         return () => {
             byte b = (byte)r.Next(0, 256); 
-            ushort NN = (byte)(_context.BitExtractor
+            ushort NN = (byte)(_context.BitManipulator
                     .GetNibble(_context.LatestOpcode, 2) << 4 |
-                    _context.BitExtractor.GetNibble(_context.LatestOpcode, 3));
+                    _context.BitManipulator.GetNibble(_context.LatestOpcode, 3));
             _context.Registers
-                .VRegisters[_context.BitExtractor
+                .VRegisters[_context.BitManipulator
                 .GetNibble(_context.LatestOpcode, 1)] = (byte)(b & NN);
         };
     }

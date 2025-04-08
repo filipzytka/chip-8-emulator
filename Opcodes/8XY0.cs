@@ -10,9 +10,9 @@ public class _8XY0 : IContextualOpcode
     public Action Invoke() 
     {
         return () => {
-                _context.Registers.VRegisters[_context.BitExtractor
+                _context.Registers.VRegisters[_context.BitManipulator
                     .GetNibble(_context.LatestOpcode, 1)] = _context.Registers
-                    .VRegisters[_context.BitExtractor
+                    .VRegisters[_context.BitManipulator
                     .GetNibble(_context.LatestOpcode, 2)];                
                 };
     }

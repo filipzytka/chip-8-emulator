@@ -10,9 +10,9 @@ public class _BNNN : IContextualOpcode
     public Action Invoke() 
     {
         return () => {
-            _context.Registers.ProgramCounter = (ushort)((_context.BitExtractor.GetNibble(_context.LatestOpcode, 1) << 8) |
-                    (_context.BitExtractor.GetNibble(_context.LatestOpcode, 2) << 4) |
-                    _context.BitExtractor.GetNibble(_context.LatestOpcode, 3) +
+            _context.Registers.ProgramCounter = (ushort)((_context.BitManipulator.GetNibble(_context.LatestOpcode, 1) << 8) |
+                    (_context.BitManipulator.GetNibble(_context.LatestOpcode, 2) << 4) |
+                    _context.BitManipulator.GetNibble(_context.LatestOpcode, 3) +
                     _context.Registers.VRegisters[0]);
         };
     }

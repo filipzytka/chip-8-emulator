@@ -1,13 +1,13 @@
 public class OpcodeContext 
 {
-    public OpcodeContext(BitExtractor bitExtractor, Registers registers, ushort latestOpcode)
+    public OpcodeContext(BitManipulator bitExtractor, Registers registers, ushort latestOpcode)
     {
-        BitExtractor = bitExtractor;
+        BitManipulator = bitExtractor;
         Registers = registers;
         LatestOpcode = latestOpcode;
     }
 
-    public BitExtractor BitExtractor { get; }
+    public BitManipulator BitManipulator { get; }
     public Registers Registers { get; }
     public ushort LatestOpcode { get; }
 }

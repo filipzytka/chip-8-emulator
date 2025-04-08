@@ -1,4 +1,4 @@
-public class BitExtractor
+public class BitManipulator
 {
     public byte GetNibble(ushort opcode, byte index)
     {

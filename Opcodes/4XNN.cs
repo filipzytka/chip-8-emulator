@@ -10,10 +10,10 @@ public class _4XNN : IContextualOpcode
     public Action Invoke() 
     {
         return () => {
-                    if (_context.Registers.VRegisters[_context.BitExtractor
-                            .GetNibble(_context.LatestOpcode, 1)] != ((_context.BitExtractor
+                    if (_context.Registers.VRegisters[_context.BitManipulator
+                            .GetNibble(_context.LatestOpcode, 1)] != ((_context.BitManipulator
                                     .GetNibble(_context.LatestOpcode, 2) << 4) 
-                                | _context.BitExtractor.GetNibble(_context.LatestOpcode, 3)))
+                                | _context.BitManipulator.GetNibble(_context.LatestOpcode, 3)))
                         {
                             _context.Registers.ProgramCounter += 2;
                         }

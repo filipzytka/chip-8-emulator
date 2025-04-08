@@ -4,10 +4,10 @@ public class CPU
     {
         _display = display;
 
-        _bitExtractor = new BitExtractor();
+        _bitManipulator = new BitManipulator();
         _registers = new Registers(_programStartAddress, _memorySize);
         _opcodeHandler = new OpcodeHandler();
-        _opcodeContainer = new OpcodeContainer(_bitExtractor, _display);
+        _opcodeProvider = new OpcodeProvider(_bitManipulator, _display);
 
         LoadToMemory(Font.Sprites, _fontStart);
         LoadToMemory(program);
@@ -34,6 +34,20 @@ public class CPU
         }
     }
 
+    private Loop _instructionPhase = Loop.Fetch;
+    private Action? _currentExecute;
+    private ushort _latestOpcode = 0;
+
+    private BitManipulator _bitManipulator;
+    private Display _display;
+    private Registers _registers;
+    private OpcodeHandler _opcodeHandler;
+    private OpcodeProvider _opcodeProvider;
+
+    private const ushort _memorySize = 4096;
+    private const ushort _programStartAddress = 0x200;
+    private const byte _fontStart = 0x50;
+
     private void LoadToMemory(byte[] programToLoad, ushort startAddress = _programStartAddress) 
     {
         ushort memoryIndex = startAddress;
@@ -53,20 +67,6 @@ public class CPU
         }
     }
 
-    private Loop _instructionPhase = Loop.Fetch;
-    private Action? _currentExecute;
-    private ushort _latestOpcode = 0;
-
-    private BitExtractor _bitExtractor;
-    private Display _display;
-    private Registers _registers;
-    private OpcodeHandler _opcodeHandler;
-    private OpcodeContainer _opcodeContainer;
-
-    private const ushort _memorySize = 4096;
-    private const ushort _programStartAddress = 0x200;
-    private const byte _fontStart = 0x50;
-
     private void Fetch()
     {
         if (_registers.ProgramCounter > _memorySize - 1)
@@ -81,10 +81,10 @@ public class CPU
 
     private void Decode() 
     {
-        var currentOpcodeInstance = _opcodeContainer.GetOpcodeInstance(_latestOpcode);
+        var currentOpcodeInstance = _opcodeProvider.GetOpcodeInstance(_latestOpcode);
         if (currentOpcodeInstance is null) return;
 
-        _opcodeContainer.SetupOpcode(currentOpcodeInstance, new OpcodeContext(_bitExtractor, _registers, _latestOpcode));
+        _opcodeProvider.SetupOpcode(currentOpcodeInstance, new OpcodeContext(_bitManipulator, _registers, _latestOpcode));
         _currentExecute = _opcodeHandler.Handle(currentOpcodeInstance);
     }
 

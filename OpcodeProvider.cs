@@ -1,13 +1,14 @@
-public class OpcodeContainer 
+public class OpcodeProvider 
 {
     public Dictionary<string, IOpcode> OpcodeMap { get; init; }
 
-    public OpcodeContainer(BitExtractor bitExtractor, Display display)
+    public OpcodeProvider(BitManipulator bitExtractor, Display display)
     {
         OpcodeMap = new();
-        GetOpcodesFromAssembly();
-        _bitExtractor = bitExtractor;
+        _bitManipulator = bitExtractor;
         _display = display;
+
+        GetOpcodesFromAssembly();
     }
 
     public void SetupOpcode(IOpcode opcodeInstance, OpcodeContext context = null)
@@ -25,7 +26,7 @@ public class OpcodeContainer
 
     public IOpcode? GetOpcodeInstance(ushort opcode)
     {
-        string msNibble = _bitExtractor.GetNibble(opcode, 0).ToHex(1);
+        string msNibble = _bitManipulator.GetNibble(opcode, 0).ToHex(1);
         KeyValuePair<string, IOpcode>[] foundOpcodes = OpcodeMap.Where(o => o.Key[0] == msNibble[0]).ToArray();
 
         if (foundOpcodes.Length == 1)
@@ -35,7 +36,7 @@ public class OpcodeContainer
 
         if (foundOpcodes.Length > 1)
         {
-            string lsNibble = _bitExtractor.GetNibble(opcode, 3).ToHex(1);
+            string lsNibble = _bitManipulator.GetNibble(opcode, 3).ToHex(1);
             IOpcode finalOpcode = foundOpcodes.Where(o => o.Key[3] == lsNibble[0]).Single().Value;
 
             return finalOpcode;
@@ -66,6 +67,6 @@ public class OpcodeContainer
         }
     }
 
-    private BitExtractor _bitExtractor;
+    private BitManipulator _bitManipulator;
     private Display _display;
 }
