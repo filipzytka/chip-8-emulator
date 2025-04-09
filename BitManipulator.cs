@@ -1,6 +1,6 @@
-public class BitManipulator
+public static class BitManipulator
 {
-    public byte GetNibble(ushort opcode, byte index)
+    public static byte GetNibble(ushort opcode, byte index)
     {
         switch (index)
         {
@@ -17,7 +17,7 @@ public class BitManipulator
         }
     }
 
-    public ushort ToUShort(byte msByte, byte lsByte)
+    public static ushort ToUShort(byte msByte, byte lsByte)
     {
         return (ushort)((msByte << 8) | lsByte);
     }

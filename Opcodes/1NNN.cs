@@ -11,9 +11,9 @@ public class _1NNN : IContextualOpcode
     {
         return () => {
                     _context.Registers.ProgramCounter = (ushort)(
-                            (_context.BitManipulator.GetNibble(_context.LatestOpcode, 1) << 8) |
-                            (_context.BitManipulator.GetNibble(_context.LatestOpcode, 2) << 4) |
-                            _context.BitManipulator.GetNibble(_context.LatestOpcode, 3)
+                            (BitManipulator.GetNibble(_context.LatestOpcode, 1) << 8) |
+                            (BitManipulator.GetNibble(_context.LatestOpcode, 2) << 4) |
+                            BitManipulator.GetNibble(_context.LatestOpcode, 3)
                     );
                 };
     }

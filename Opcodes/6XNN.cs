@@ -11,10 +11,10 @@ public class _6XNN : IContextualOpcode
     {
         return () => {
                     _context.Registers
-                        .VRegisters[_context.BitManipulator
-                        .GetNibble(_context.LatestOpcode, 1)] = (byte)((_context.BitManipulator
+                        .VRegisters[BitManipulator
+                        .GetNibble(_context.LatestOpcode, 1)] = (byte)((BitManipulator
                         .GetNibble(_context.LatestOpcode, 2) << 4) | 
-                        _context.BitManipulator.GetNibble(_context.LatestOpcode, 3));
+                        BitManipulator.GetNibble(_context.LatestOpcode, 3));
                 };
     }
 }

@@ -4,10 +4,9 @@ public class CPU
     {
         _display = display;
 
-        _bitManipulator = new BitManipulator();
         _registers = new Registers(_programStartAddress, _memorySize);
         _opcodeHandler = new OpcodeHandler();
-        _opcodeProvider = new OpcodeProvider(_bitManipulator, _display);
+        _opcodeProvider = new OpcodeProvider(_display);
 
         LoadToMemory(Font.Sprites, _fontStart);
         LoadToMemory(program);
@@ -38,7 +37,6 @@ public class CPU
     private Action? _currentExecute;
     private ushort _latestOpcode = 0;
 
-    private BitManipulator _bitManipulator;
     private Display _display;
     private Registers _registers;
     private OpcodeHandler _opcodeHandler;
@@ -47,6 +45,13 @@ public class CPU
     private const ushort _memorySize = 4096;
     private const ushort _programStartAddress = 0x200;
     private const byte _fontStart = 0x50;
+
+    private enum Loop
+    {
+        Fetch,
+        Decode,
+        Execute
+    }
 
     private void LoadToMemory(byte[] programToLoad, ushort startAddress = _programStartAddress) 
     {
@@ -74,22 +79,40 @@ public class CPU
             throw new OutOfMemoryException();
         }
 
-        byte msByte = (_registers.Memory[_registers.ProgramCounter]);
-        byte lsByte = (_registers.Memory[_registers.ProgramCounter + 1]);
+        byte msByte = _registers.Memory[_registers.ProgramCounter];
+        byte lsByte = _registers.Memory[_registers.ProgramCounter + 1];
 
-        _latestOpcode = _bitManipulator.ToUShort(msByte, lsByte);
+        _latestOpcode = BitManipulator.ToUShort(msByte, lsByte);
 
         _registers.ProgramCounter += 2;
     }
 
     private void Decode() 
     {
-        var currentOpcodeInstance = _opcodeProvider.GetOpcodeInstance(_latestOpcode);
-        if (currentOpcodeInstance is null) return;
+        var opcodeInstance = _opcodeProvider.GetOpcodeInstance(_latestOpcode);
+        if (opcodeInstance is null) return;
 
-        _opcodeProvider.SetupOpcode(currentOpcodeInstance,
-                new OpcodeContext(_bitManipulator, _registers, _latestOpcode));
-        _currentExecute = _opcodeHandler.Handle(currentOpcodeInstance);
+        LoadContext(opcodeInstance);
+        LoadDisplay(opcodeInstance);
+
+        _currentExecute = _opcodeHandler.Handle(opcodeInstance);
+    }
+
+    private void LoadContext(IOpcode opcodeInstance)
+    {
+        if (opcodeInstance is IContextualOpcode contextualOpcode)
+        {
+            OpcodeContext context = new(_registers, _latestOpcode);
+            contextualOpcode.LoadContext(context);
+        }
+    }
+
+    private void LoadDisplay(IOpcode opcodeInstance)
+    {
+        if (opcodeInstance is IDisplayableOpcode displayableOpcode)
+        {
+            displayableOpcode.LoadDisplay(_display);
+        }
     }
 
     private void Execute() 

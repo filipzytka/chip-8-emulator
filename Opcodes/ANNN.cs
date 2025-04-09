@@ -10,10 +10,10 @@ public class _ANNN : IContextualOpcode
     public Action Invoke() 
     {
         return () => {
-                _context.Registers.IndexRegister = (ushort)((_context.BitManipulator
+                _context.Registers.IndexRegister = (ushort)((BitManipulator
                     .GetNibble(_context.LatestOpcode, 1) << 8) |
-                    (_context.BitManipulator.GetNibble(_context.LatestOpcode, 2) << 4) |
-                    _context.BitManipulator.GetNibble(_context.LatestOpcode, 3));
+                    (BitManipulator.GetNibble(_context.LatestOpcode, 2) << 4) |
+                    BitManipulator.GetNibble(_context.LatestOpcode, 3));
                 };
     }
 }

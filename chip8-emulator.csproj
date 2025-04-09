@@ -6,6 +6,7 @@
     <RootNamespace>chip8_emulator</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <NoWarn>CS8618</NoWarn> 
   </PropertyGroup>
 
   <ItemGroup>

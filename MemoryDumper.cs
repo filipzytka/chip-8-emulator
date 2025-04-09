@@ -9,7 +9,7 @@ public class MemoryDumper
         foreach (var b in program)
         {
             bool isWord = dataIndex % 2 == 0;
-            bool isEndLine = rowIndex % 16 == 0;
+            bool isEndLine = rowIndex % _rowSize == 0;
 
             if (rowIndex == 0)
             {
@@ -33,5 +33,5 @@ public class MemoryDumper
         }
     }
 
-    private ushort _rowSize = 16;
+    private readonly ushort _rowSize = 16;
 }

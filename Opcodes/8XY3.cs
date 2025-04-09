@@ -1,4 +1,4 @@
-public class _8XY0 : IContextualOpcode
+public class _8XY3 : IContextualOpcode
 {
     private OpcodeContext _context;
 
@@ -11,9 +11,10 @@ public class _8XY0 : IContextualOpcode
     {
         return () => {
                 _context.Registers.VRegisters[BitManipulator
-                    .GetNibble(_context.LatestOpcode, 1)] = _context.Registers
+                    .GetNibble(_context.LatestOpcode, 1)] ^= _context.Registers
                     .VRegisters[BitManipulator
                     .GetNibble(_context.LatestOpcode, 2)];                
                 };
     }
 }
+
