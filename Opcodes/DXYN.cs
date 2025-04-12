@@ -16,24 +16,22 @@ public class _DXYN : IContextualOpcode, IDisplayableOpcode
     public Action Invoke()
     {
         return () => {
-            byte n = BitManipulator.GetNibble(_context.LatestOpcode, 3);
-            byte[] sprite = new byte[n];
+                byte n = BitManipulator.GetNibble(_context.LatestOpcode, 3);
+                byte vx = _context.Registers.VRegisters[BitManipulator.GetNibble(_context.LatestOpcode, 1)];
+                byte vy = _context.Registers.VRegisters[BitManipulator.GetNibble(_context.LatestOpcode, 2)];
 
-            for (byte i = 0; i < n; i++)
-            {
-                sprite[i] = _context.Registers.Memory[_context.Registers.IndexRegister + i];
-            }
+                byte[] sprite = new byte[n];
 
-            bool isCollision = _display.DrawSprite(
-                    sprite,
-                    _context.Registers
-                        .VRegisters[BitManipulator.GetNibble(_context.LatestOpcode, 1)],
-                    _context.Registers
-                        .VRegisters[BitManipulator.GetNibble(_context.LatestOpcode, 2)]);
-            if (isCollision) _context.Registers.VRegisters[0xD] = 1;
+                for (byte i = 0; i < n; i++)
+                {
+                    sprite[i] = _context.Registers.Memory[_context.Registers.IndexRegister + i];
+                }
 
-            Console.Clear();
-            _display.Show();
+                bool isCollision = _display.DrawSprite(sprite, vx, vy);
+                if (isCollision) _context.Registers.VRegisters[0xD] = 1;
+
+                Console.Clear();
+                _display.Show();
         };
     }
 }

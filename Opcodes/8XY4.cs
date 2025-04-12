@@ -10,18 +10,18 @@ public class _8XY4 : IContextualOpcode
     public Action Invoke() 
     {
         return () => {
-            _context.Registers.VRegisters[0xF] = 0;
+                _context.Registers.VRegisters[0xF] = 0;
 
-            ref byte vx = ref _context.Registers.VRegisters[BitManipulator
-                .GetNibble(_context.LatestOpcode, 1)];
+                ref byte vx = ref _context.Registers.VRegisters[BitManipulator
+                    .GetNibble(_context.LatestOpcode, 1)];
 
-            ref byte vy = ref _context.Registers.VRegisters[BitManipulator
-                .GetNibble(_context.LatestOpcode, 2)];
+                ref byte vy = ref _context.Registers.VRegisters[BitManipulator
+                    .GetNibble(_context.LatestOpcode, 2)];
 
-            if (IsOverflow(vx, vy))
-            {
-                _context.Registers.VRegisters[0xF] = 1;
-            }
+                if (IsOverflow(vx, vy))
+                {
+                    _context.Registers.VRegisters[0xF] = 1;
+                }
 
                 vx += vy;
         };

@@ -11,7 +11,7 @@ public class _00E0 : IDisplayableOpcode
     {
         return () => {
                 _display.Clear();
-            };
+        };
     }
 }
 
