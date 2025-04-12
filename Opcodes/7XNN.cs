@@ -10,12 +10,15 @@ public class _7XNN : IContextualOpcode
     public Action Invoke() 
     {
         return () => {
-                    _context.Registers
-                        .VRegisters[BitManipulator
-                        .GetNibble(_context.LatestOpcode, 1)] += (byte)((BitManipulator
-                        .GetNibble(_context.LatestOpcode, 2) << 4) | 
-                        BitManipulator.GetNibble(_context.LatestOpcode, 3));
-                };
+                ref byte vx = ref _context.Registers.VRegisters[
+                    BitManipulator.GetNibble(_context.LatestOpcode, 1)];
+                byte nn = BitManipulator.BuildByte(
+                        BitManipulator.GetNibble(_context.LatestOpcode, 2),
+                        BitManipulator.GetNibble(_context.LatestOpcode, 3)
+                );
+
+                vx += nn;
+        };
     }
 }
 

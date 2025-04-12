@@ -10,8 +10,8 @@ public class _00E0 : IDisplayableOpcode
     public Action Invoke() 
     {
         return () => {
-                    _display.Clear();
-                };
+                _display.Clear();
+            };
     }
 }
 

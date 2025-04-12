@@ -17,9 +17,19 @@ public static class BitManipulator
         }
     }
 
-    public static ushort ToUShort(byte msByte, byte lsByte)
+    public static ushort Build2Bytes(byte msByte, byte lsByte)
     {
         return (ushort)((msByte << 8) | lsByte);
+    }
+
+    public static byte BuildByte(byte msNibble, byte lsNibble)
+    {
+        return (byte)((msNibble << 4) | lsNibble);
+    }
+
+    public static ushort Build12Bit(byte msNibble, byte mNibble, byte lsNibble)
+    {
+        return (ushort)((msNibble << 8) | (mNibble << 4) | lsNibble);
     }
 }
 

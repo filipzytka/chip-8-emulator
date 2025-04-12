@@ -10,12 +10,14 @@ public class _1NNN : IContextualOpcode
     public Action Invoke() 
     {
         return () => {
-                    _context.Registers.ProgramCounter = (ushort)(
-                            (BitManipulator.GetNibble(_context.LatestOpcode, 1) << 8) |
-                            (BitManipulator.GetNibble(_context.LatestOpcode, 2) << 4) |
-                            BitManipulator.GetNibble(_context.LatestOpcode, 3)
-                    );
-                };
+                ushort memoryAddress = BitManipulator.Build12Bit(
+                        BitManipulator.GetNibble(_context.LatestOpcode, 1),
+                        BitManipulator.GetNibble(_context.LatestOpcode, 2),
+                        BitManipulator.GetNibble(_context.LatestOpcode, 3)
+                );
+
+                _context.Registers.ProgramCounter = memoryAddress;
+        };
     }
 }
 

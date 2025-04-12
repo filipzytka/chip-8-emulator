@@ -11,13 +11,15 @@ public class _CXNN : IContextualOpcode
     public Action Invoke() 
     {
         return () => {
-            byte b = (byte)r.Next(0, 256); 
-            ushort NN = (byte)(BitManipulator
-                    .GetNibble(_context.LatestOpcode, 2) << 4 |
-                    BitManipulator.GetNibble(_context.LatestOpcode, 3));
-            _context.Registers
-                .VRegisters[BitManipulator
-                .GetNibble(_context.LatestOpcode, 1)] = (byte)(b & NN);
+                byte randomByte = (byte)r.Next(0, 256); 
+
+                byte vx = _context.Registers.VRegisters[BitManipulator.GetNibble(_context.LatestOpcode, 1)];
+                byte nn = BitManipulator.BuildByte(
+                        BitManipulator.GetNibble(_context.LatestOpcode, 2),
+                        BitManipulator.GetNibble(_context.LatestOpcode, 3)
+                );
+
+                vx  = (byte)(randomByte & nn);
         };
     }
 }

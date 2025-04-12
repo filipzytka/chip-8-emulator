@@ -82,7 +82,7 @@ public class CPU
         byte msByte = _registers.Memory[_registers.ProgramCounter];
         byte lsByte = _registers.Memory[_registers.ProgramCounter + 1];
 
-        _latestOpcode = BitManipulator.ToUShort(msByte, lsByte);
+        _latestOpcode = BitManipulator.Build2Bytes(msByte, lsByte);
 
         _registers.ProgramCounter += 2;
     }

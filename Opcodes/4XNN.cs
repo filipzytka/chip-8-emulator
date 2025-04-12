@@ -10,14 +10,18 @@ public class _4XNN : IContextualOpcode
     public Action Invoke() 
     {
         return () => {
-                    if (_context.Registers.VRegisters[BitManipulator
-                            .GetNibble(_context.LatestOpcode, 1)] != ((BitManipulator
-                                    .GetNibble(_context.LatestOpcode, 2) << 4) 
-                                | BitManipulator.GetNibble(_context.LatestOpcode, 3)))
-                        {
-                            _context.Registers.ProgramCounter += 2;
-                        }
-                };
+                ref byte vx = ref _context.Registers.VRegisters[
+                    BitManipulator.GetNibble(_context.LatestOpcode, 1)];
+                byte nn = BitManipulator.BuildByte(
+                        BitManipulator.GetNibble(_context.LatestOpcode, 2),
+                        BitManipulator.GetNibble(_context.LatestOpcode, 3)
+                );
+
+                if (vx != nn)
+                {
+                    _context.Registers.ProgramCounter += 2;
+                }
+        };
     }
 }
 

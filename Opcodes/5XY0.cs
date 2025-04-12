@@ -10,16 +10,16 @@ public class _5XY0 : IContextualOpcode
     public Action Invoke() 
     {
         return () => {
-                    if (_context.Registers
-                            .VRegisters[BitManipulator
-                            .GetNibble(_context
-                                .LatestOpcode, 1)] == _context.Registers
-                            .VRegisters[BitManipulator
-                                .GetNibble(_context.LatestOpcode, 2)])
-                        {
-                            _context.Registers.ProgramCounter += 2;
-                        }
-                };
+                ref byte vx = ref _context.Registers.VRegisters[
+                    BitManipulator.GetNibble(_context.LatestOpcode, 1)];
+                ref byte vy = ref _context.Registers.VRegisters[
+                    BitManipulator.GetNibble(_context.LatestOpcode, 2)];
+
+                if (vx == vy)
+                {
+                    _context.Registers.ProgramCounter += 2;
+                }
+        };
     }
 }
 

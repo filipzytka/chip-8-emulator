@@ -10,10 +10,15 @@ public class _BNNN : IContextualOpcode
     public Action Invoke() 
     {
         return () => {
-            _context.Registers.ProgramCounter = (ushort)((BitManipulator.GetNibble(_context.LatestOpcode, 1) << 8) |
-                    (BitManipulator.GetNibble(_context.LatestOpcode, 2) << 4) |
-                    BitManipulator.GetNibble(_context.LatestOpcode, 3) +
-                    _context.Registers.VRegisters[0]);
+                ushort memoryAddress = BitManipulator.Build12Bit(
+                        BitManipulator.GetNibble(_context.LatestOpcode, 1),
+                        BitManipulator.GetNibble(_context.LatestOpcode, 2),
+                        BitManipulator.GetNibble(_context.LatestOpcode, 3)
+                );
+
+                byte v0 = _context.Registers.VRegisters[0];
+
+                _context.Registers.ProgramCounter = (ushort)(memoryAddress + v0);       
         };
     }
 }
