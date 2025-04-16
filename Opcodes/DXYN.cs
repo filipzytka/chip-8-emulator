@@ -17,14 +17,17 @@ public class _DXYN : IContextualOpcode, IDisplayableOpcode
     {
         return () => {
                 byte n = BitManipulator.GetNibble(_context.LatestOpcode, 3);
-                byte vx = _context.Registers.VRegisters[BitManipulator.GetNibble(_context.LatestOpcode, 1)];
-                byte vy = _context.Registers.VRegisters[BitManipulator.GetNibble(_context.LatestOpcode, 2)];
+                byte vx = _context.Registers.VRegisters[
+                    BitManipulator.GetNibble(_context.LatestOpcode, 1)];
+                byte vy = _context.Registers.VRegisters[
+                    BitManipulator.GetNibble(_context.LatestOpcode, 2)];
 
                 byte[] sprite = new byte[n];
 
                 for (byte i = 0; i < n; i++)
                 {
-                    sprite[i] = _context.Registers.Memory[_context.Registers.IndexRegister + i];
+                    sprite[i] = _context.Registers.Memory[
+                        _context.Registers.IndexRegister + i];
                 }
 
                 bool isCollision = _display.DrawSprite(sprite, vx, vy);

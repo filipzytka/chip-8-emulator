@@ -14,7 +14,6 @@ public class _8XY4 : IContextualOpcode
 
                 ref byte vx = ref _context.Registers.VRegisters[BitManipulator
                     .GetNibble(_context.LatestOpcode, 1)];
-
                 ref byte vy = ref _context.Registers.VRegisters[BitManipulator
                     .GetNibble(_context.LatestOpcode, 2)];
 

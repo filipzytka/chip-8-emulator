@@ -1,14 +1,17 @@
 public class CPU 
 {
-    public CPU(byte[] program, Display display)
+    public static bool IsExecutionPaused { get; set; } = false;
+
+    public CPU(byte[] program, Display display, KeyPressPublisher publisher)
     {
         _display = display;
+        _publisher = publisher;
 
         _registers = new Registers(_programStartAddress, _memorySize);
         _opcodeHandler = new OpcodeHandler();
-        _opcodeProvider = new OpcodeProvider(_display);
+        _opcodeProvider = new OpcodeProvider(_publisher, _display);
 
-        LoadToMemory(Font.Sprites, _fontStart);
+        LoadToMemory(Font.Sprites, Font.StartAddress);
         LoadToMemory(program);
     }
 
@@ -16,16 +19,18 @@ public class CPU
     {
         switch (_instructionPhase)
         {
-            case Loop.Fetch:
+            case ExecutionPhase.Fetch:
                 Fetch();
+                IncrementProgramCounter();
                 MoveNext();
                 break;
-            case Loop.Decode:
+            case ExecutionPhase.Decode:
                 Decode();
                 MoveNext();
                 break;
-            case Loop.Execute:
+            case ExecutionPhase.Execute:
                 Execute();
+                DecrementTimers();
                 MoveNext();
                 break;
             default:
@@ -33,7 +38,7 @@ public class CPU
         }
     }
 
-    private Loop _instructionPhase = Loop.Fetch;
+    private ExecutionPhase _instructionPhase = ExecutionPhase.Fetch;
     private Action? _currentExecute;
     private ushort _latestOpcode = 0;
 
@@ -41,12 +46,12 @@ public class CPU
     private Registers _registers;
     private OpcodeHandler _opcodeHandler;
     private OpcodeProvider _opcodeProvider;
+    private KeyPressPublisher _publisher;
 
     private const ushort _memorySize = 4096;
     private const ushort _programStartAddress = 0x200;
-    private const byte _fontStart = 0x50;
 
-    private enum Loop
+    private enum ExecutionPhase
     {
         Fetch,
         Decode,
@@ -83,14 +88,15 @@ public class CPU
         byte lsByte = _registers.Memory[_registers.ProgramCounter + 1];
 
         _latestOpcode = BitManipulator.Build2Bytes(msByte, lsByte);
-
-        _registers.ProgramCounter += 2;
     }
 
     private void Decode() 
     {
         var opcodeInstance = _opcodeProvider.GetOpcodeInstance(_latestOpcode);
-        if (opcodeInstance is null) return;
+        if (opcodeInstance is null)
+        {
+            return;
+        }
 
         LoadContext(opcodeInstance);
         LoadDisplay(opcodeInstance);
@@ -127,12 +133,33 @@ public class CPU
 
     private void MoveNext()
     {
-        if (_instructionPhase == Loop.Execute)
+        if (_instructionPhase == ExecutionPhase.Execute)
         {
-            _instructionPhase = Loop.Fetch;
+            _instructionPhase = ExecutionPhase.Fetch;
             return;
         }
 
         _instructionPhase += 1;
+    }
+
+    private void IncrementProgramCounter()
+    {
+        if (!IsExecutionPaused)
+        {
+            _registers.ProgramCounter += 2;
+        }
+    }
+
+    private void DecrementTimers()
+    {
+        if (_registers.DelayTimer > 0)
+        {
+            _registers.DelayTimer -= 1;
+        }
+
+        if (_registers.SoundTimer > 0)
+        {
+            _registers.SoundTimer -= 1; 
+        }
     }
 }
