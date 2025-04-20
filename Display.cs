@@ -30,12 +30,14 @@ public class Display
                     continue;
                 }
 
-                if (Screen[y + row, x + col] == ON) 
+                var (wx, wy) = WrapDisplay((byte)(x + col), (byte)(y + row));
+
+                if (Screen[wy, wx] == ON) 
                 {
                     isCollision = true;
                 }
 
-                Screen[y + row, x + col] ^= 1;
+                Screen[wy, wx] ^= 1;
             }
         }
 
@@ -65,5 +67,14 @@ public class Display
 
             Console.WriteLine();
         }
+
+        Console.SetCursorPosition(0, 0);
+    }
+
+    private (byte, byte) WrapDisplay(byte x, byte y)
+    {
+        byte wrappedX = (byte)((x % _width + _width) % _width);
+        byte wrappedY = (byte)((y % _height + _height) % _height);
+        return (wrappedX, wrappedY);
     }
 }

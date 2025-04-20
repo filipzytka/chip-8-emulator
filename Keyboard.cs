@@ -1,22 +1,22 @@
 public static class Keyboard 
 {
-    public static char[] KeyMap = 
+    public static Dictionary<char, byte> KeyMap = new()
     {
-        '1', '2', '3', '4',
-        'Q', 'W', 'E', 'R',
-        'A', 'S', 'D', 'D',
-        'Z', 'X', 'C', 'V'
+        { '1', 0x1 }, { '2', 0x2 }, { '3', 0x3 }, { '4', 0xC },
+        { 'Q', 0x4 }, { 'W', 0x5 }, { 'E', 0x6 }, { 'R', 0xD },
+        { 'A', 0x7 }, { 'S', 0x8 }, { 'D', 0x9 }, { 'F', 0xE },
+        { 'Z', 0xA }, { 'X', 0x0 }, { 'C', 0xB }, { 'V', 0xF },
     };
 
-    public static int GetPressedKeyIndex()
+    public static int ReadKeyCode()
     {
         if (Console.KeyAvailable)
         {
-            char pressedKey = char.ToUpper(Console.ReadKey(true).KeyChar);
+            char pressedKey = char.ToUpper(Console.ReadKey(intercept: true).KeyChar);
 
-            if (KeyMap.Contains(pressedKey))
+            if (KeyMap.ContainsKey(pressedKey))
             {
-                return Array.IndexOf(KeyMap, pressedKey);
+                return KeyMap[pressedKey];
             }
         }
 

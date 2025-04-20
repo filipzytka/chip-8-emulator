@@ -1,6 +1,7 @@
 public class CPU 
 {
     public static bool IsExecutionPaused { get; set; } = false;
+    public DebugLogger Logger { get; }
 
     public CPU(byte[] program, Display display, KeyPressPublisher publisher)
     {
@@ -10,6 +11,8 @@ public class CPU
         _registers = new Registers(_programStartAddress, _memorySize);
         _opcodeHandler = new OpcodeHandler();
         _opcodeProvider = new OpcodeProvider(_publisher, _display);
+
+        Logger = new DebugLogger(_registers);
 
         LoadToMemory(Font.Sprites, Font.StartAddress);
         LoadToMemory(program);
@@ -30,7 +33,6 @@ public class CPU
                 break;
             case ExecutionPhase.Execute:
                 Execute();
-                DecrementTimers();
                 MoveNext();
                 break;
             default:
@@ -150,7 +152,7 @@ public class CPU
         }
     }
 
-    private void DecrementTimers()
+    public void DecrementTimers()
     {
         if (_registers.DelayTimer > 0)
         {
@@ -159,6 +161,7 @@ public class CPU
 
         if (_registers.SoundTimer > 0)
         {
+            Console.Beep();
             _registers.SoundTimer -= 1; 
         }
     }
