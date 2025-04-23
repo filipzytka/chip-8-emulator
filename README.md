@@ -23,6 +23,11 @@ dotnet run
 ```
 The application scans your project directory for .ch8 programs and then prompts you to select one from a list.
 
+</br>
+<p align=center>
+  <img src="./img/breakout.png" width=400>
+</p>
+
 ## References 
 
 - https://en.wikipedia.org/wiki/CHIP-8
