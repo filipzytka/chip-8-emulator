@@ -12,11 +12,11 @@ public class Display
         Clear();
     }
 
-    public bool DrawSprite(byte[] sprites, byte x, byte y)
+    public bool DrawSprite(byte[] sprite, byte x, byte y)
     {
         bool isCollision = false;
 
-        byte n = (byte)sprites.Length;
+        byte n = (byte)sprite.Length;
 
         byte mask = 0x80;
         byte spriteWidth = 8;
@@ -25,19 +25,19 @@ public class Display
         {
             for (byte col = 0; col < spriteWidth; col++)
             {
-                if ((sprites[row] & (mask >> col)) == 0)
+                if ((sprite[row] & (mask >> col)) == 0)
                 {
                     continue;
                 }
 
                 var (wx, wy) = WrapDisplay((byte)(x + col), (byte)(y + row));
 
-                if (Screen[wy, wx] == ON) 
+                Screen[wy, wx] ^= 1;
+
+                if (Screen[wy, wx] == 1)
                 {
                     isCollision = true;
                 }
-
-                Screen[wy, wx] ^= 1;
             }
         }
 

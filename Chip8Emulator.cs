@@ -47,6 +47,6 @@ public class Chip8Emulator
     private readonly Stopwatch _timerStopwatch;
     private readonly Stopwatch _instructionStopwatch;
     private const ushort _timerTick = 16;
-    private const ushort _instructionTick = 30;
+    private const ushort _instructionTick = 16;
 
 }

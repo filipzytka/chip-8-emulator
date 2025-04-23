@@ -15,7 +15,8 @@ public class OpcodeProvider
     public IOpcode? GetOpcodeInstance(ushort opcode)
     {
         string msNibble = BitManipulator.GetNibble(opcode, 0).ToHex(1);
-        KeyValuePair<string, IOpcode>[] opcodeInstancePair = OpcodeMap.Where(o => o.Key[0] == msNibble[0]).ToArray();
+        KeyValuePair<string, IOpcode>[] opcodeInstancePair = OpcodeMap.Where(
+                o => o.Key[0] == msNibble[0]).ToArray();
 
         if (opcodeInstancePair.Length == 1)
         {

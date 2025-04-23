@@ -16,6 +16,7 @@ public class _DXYN : IContextualOpcode, IDisplayableOpcode
     public Action Invoke()
     {
         return () => {
+                //_display.Clear();
                 byte n = BitManipulator.GetNibble(_context.LatestOpcode, 3);
                 byte vx = _context.Registers.VRegisters[
                     BitManipulator.GetNibble(_context.LatestOpcode, 1)];
@@ -23,7 +24,6 @@ public class _DXYN : IContextualOpcode, IDisplayableOpcode
                     BitManipulator.GetNibble(_context.LatestOpcode, 2)];
 
                 byte[] sprite = new byte[n];
-                _context.Registers.VRegisters[0xF] = 0;
 
                 for (byte i = 0; i < n; i++)
                 {
@@ -32,7 +32,12 @@ public class _DXYN : IContextualOpcode, IDisplayableOpcode
                 }
 
                 bool isCollision = _display.DrawSprite(sprite, vx, vy);
-                if (isCollision) _context.Registers.VRegisters[0xF] = 1;
+                if (isCollision) 
+                {
+                    _context.Registers.VRegisters[0xF] = 1;
+                }
+                else
+                    _context.Registers.VRegisters[0xF] = 0;
 
                 _display.Show();
         };
